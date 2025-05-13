@@ -32,7 +32,7 @@ function createDropdowns(indivData, meanData) {
     const maleList = Object.keys(indivData).filter(k => k.startsWith('m')).sort();
 
     const femSel = d3.select('body').insert("select", "#lineplot").attr("id", "femaleDropdown")
-        .append("option").attr("value", "").text("-- Female Mean --");
+        .append("option").attr("value", "").text("-- 🐭 Female Mean --");
 
     femaleList.forEach(id => {
         d3.select("#femaleDropdown")
@@ -40,7 +40,7 @@ function createDropdowns(indivData, meanData) {
     });
 
     const maleSel = d3.select('body').insert("select", "#lineplot").attr("id", "maleDropdown")
-        .append("option").attr("value", "").text("-- Male Mean --");
+        .append("option").attr("value", "").text("-- 🐭 Male Mean --");
 
     maleList.forEach(id => {
         d3.select("#maleDropdown")

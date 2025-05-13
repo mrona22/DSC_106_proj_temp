@@ -5,11 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script type="module" src="main.js"></script> <!-- Your JS file -->
     <title>Project 3 Checkpoint</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Temporal Changes in Activity and Temperature in Male vs Female Mice</h1>
-    <svg id="lineplot" ></svg>
+    <div class = "button-row">
+        <button class="toggle-btn" onclick="switchMode()">🌗 Switch Mode</button>
+        <button class="toggle-btn" onclick="playMusic()">🎵 Play/Pause Music</button>
+    </div>
+    <h1>🐭 Temporal Changes in Activity and Temperature: <br> Male vs. Female Mice 🐭</h1>
 
-    <div class="tool-tip"></div>
+    <!-- <div>
+        <label for="femaleMouse">👩‍🔬 Select Female Mouse:</label>
+        <select id="femaleMouse">
+          <option value="">-- 🐭 Mean (Default) --</option>
+        </select>
+    
+        <label for="maleMouse">👨‍🔬 Select Male Mouse:</label>
+        <select id="maleMouse">
+          <option value="">-- 🐭 Mean (Default) --</option>
+        </select>
+      </div>
+     -->
+      <svg id="lineplot"></svg>
+      <div class="tool-tip"></div>
+    
+      <audio id="bg-music" src="Ratatouille.mp3" loop></audio>
+    
+      <script>
+        function switchMode() {
+          document.body.classList.toggle('dark');
+        }
+    
+        function playMusic() {
+        const audio = document.getElementById("bg-music");
+        if (audio.paused) {
+          audio.play();
+        } else {
+          audio.pause();
+        }
+      }
+      </script>
 </body>
 </html>
