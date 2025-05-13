@@ -45,13 +45,12 @@ function createLinePlot(data) {
       .append("g")
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-    // Parse time
+ 
     const parseTime = d3.timeParse("%H:%M");
     data.forEach(d => {
         d.time = parseTime(d.minute);
     });
 
-    // Scales
     const x = d3.scaleTime()
         .domain(d3.extent(data, d => d.time))
         .range([0, width]);
@@ -63,7 +62,6 @@ function createLinePlot(data) {
         ])
         .range([height, 0]);
 
-    // Line generators
     const lineFemale = d3.line()
         .x(d => x(d.time))
         .y(d => y(d.female_temp));
@@ -72,9 +70,9 @@ function createLinePlot(data) {
         .x(d => x(d.time))
         .y(d => y(d.male_temp));
 
-    // Highlight time range around 1 PM
-    const highlightStart = parseTime("12:15"); // 1 PM
-    const highlightEnd = d3.timeMinute.offset(highlightStart, 85); // 20 minutes span (adjust as needed)
+    
+    const highlightStart = parseTime("12:15");
+    const highlightEnd = d3.timeMinute.offset(highlightStart, 85); 
 
     const xStart = x(highlightStart);
     const xEnd = x(highlightEnd);
@@ -84,15 +82,15 @@ function createLinePlot(data) {
         .attr("y", 0)
         .attr("width", xEnd - xStart)
         .attr("height", height)
-        .attr("fill", "#fff8b0") // pale yellow
+        .attr("fill", "#fff8b0") 
         .attr("opacity", 0.4)
-        .attr("stroke", "#e0c000") // slightly darker yellow stroke
+        .attr("stroke", "#e0c000") 
         .attr("stroke-width", 1)
-        .lower(); // put behind lines
+        .lower(); 
 
 
 
-    // Tooltip elements
+
     const tooltip = d3.select("body")
         .append("div")
         .attr("class", "tooltip")
@@ -126,16 +124,14 @@ function createLinePlot(data) {
         .attr("stroke-width", 2)
         .attr("d", lineMale);
 
-    // X axis
     svg.append("g")
         .attr("transform", `translate(0,${height})`)
         .call(d3.axisBottom(x).tickFormat(d3.timeFormat("%H:%M")));
 
-    // Y axis
+
     svg.append("g")
         .call(d3.axisLeft(y));
 
-    // Add overlay rect
     svg.append("rect")
         .attr("width", width)
         .attr("height", height)
@@ -145,13 +141,31 @@ function createLinePlot(data) {
         .on("mouseout", () => {
             tooltip.style("visibility", "hidden");
             focusLine.style("opacity", 0);
-        })
-        .on("click", () => {
-            tooltip.style("visibility", "hidden");
-            svg.selectAll("*").remove(); 
-            onClickEvent(svg);  
         });
-        
+
+    
+        svg.append("rect")
+            .attr("x", xStart)
+            .attr("y", 0)
+            .attr("width", xEnd - xStart)
+            .attr("height", height)
+            .attr("fill", "#fff8b0")
+            .attr("opacity", 0.4)
+            .attr("stroke", "#e0c000")
+            .attr("stroke-width", 1)
+            .style("cursor", "pointer")
+            .style("pointer-events", "visible") // Allow interaction only with painted area
+            .on("mousemove", onMouseMove) // same function as overlay
+            .on("mouseout", () => {
+                tooltip.style("visibility", "hidden");
+                focusLine.style("opacity", 0);
+            })
+            .on("click", () => {
+                tooltip.style("visibility", "hidden");
+                svg.selectAll("*").remove();
+                onClickEvent(svg);
+            });
+
         
 
     // Bisector to find closest time
@@ -264,8 +278,8 @@ function createLinePlot(data) {
         const steps = 300;
         let path = "";
 
-        const HEIGHT_SCALE = 16;   // reduced height
-        const BASELINE_Y = 75;     // line is at y=75 now
+        const HEIGHT_SCALE = 16;   
+        const BASELINE_Y = 75;     
 
         for (let i = 0; i <= steps; i++) {
             const xVal = mean + (i / steps) * 6 * std - 3 * std;
@@ -309,14 +323,6 @@ function createLinePlot(data) {
                 m13: data.m13[minute],
             }));
 
-            // const filteredData = transformedData.filter(d =>
-            //     !isNaN(d.female_temp) &&
-            //     !isNaN(d.male_temp) &&
-            //     !isNaN(d.female_act_chng) &&
-            //     !isNaN(d.male_act_chng) &&
-            //     !isNaN(d.male__std) &&
-            //     !isNaN(d.female_std)
-            // );
             
             createPlotB(transformedData)
 
@@ -335,8 +341,6 @@ function createPlotB(data) {
     const g = svg.append("g")
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-
-
     const parseTime = d3.timeParse("%H:%M");
     data.forEach(d => {
         d.time = parseTime(d.minute);
@@ -353,7 +357,7 @@ function createPlotB(data) {
         ])
         .range([height, 0]);
 
-    // Area between min and max
+
     const areaMinMax = d3.area()
             .x(d => x(d.time))
             .y0(d => y(d.min) + 7)
@@ -361,7 +365,7 @@ function createPlotB(data) {
 
     g.append("path")
         .datum(data)
-        .attr("fill", "#cce5ff") // light blue
+        .attr("fill", "#cce5ff") 
         .attr("opacity", 0.4)
         .attr("d", areaMinMax);
 
@@ -378,7 +382,7 @@ function createPlotB(data) {
         .x(d => x(d.time))
         .y(d => y(d.mean));
 
-    // Max line – red/orange
+
     g.append("path")
         .datum(data)
         .attr("fill", "none")
@@ -388,7 +392,7 @@ function createPlotB(data) {
         .attr("opacity", 0.4)
         .attr("d", lineMax);
 
-    // Min line – blue
+
     g.append("path")
         .datum(data)
         .attr("fill", "none")
@@ -398,25 +402,25 @@ function createPlotB(data) {
         .attr("opacity", 0.4)
         .attr("d", lineMin);
 
-    // Mean line – black
+
     g.append("path")
         .datum(data)
         .attr("fill", "none")
         .attr("stroke", "#222")
         .attr("stroke-width", 2)
         .attr('opacity', 0.3)
-        .attr("stroke-dasharray", "4,2") // optional: dashed
+        .attr("stroke-dasharray", "4,2") 
         .attr("d", lineMean);
 
-    // Add faint lines for m1 to m13
+
     const memberLines = d3.line()
         .x(d => x(d.time))
         .y((d, i, arr) => {
-            // We'll override this per member below
+
             return 0;
         });
 
-    // List of member keys
+
     const memberKeys = [
         'm1', 'm2', 'm3', 'm4', 'm5', 'm6',
         'm7', 'm8', 'm9', 'm10', 'm11', 'm12', 'm13'
@@ -430,7 +434,7 @@ function createPlotB(data) {
         g.append("path")
             .datum(data)
             .attr("fill", "none")
-            .attr("stroke", "#6fa3ff") // light gray
+            .attr("stroke", "#6fa3ff") 
             .attr("stroke-width", 1)
             .attr("opacity", 0.1)
             .attr("d", line);
