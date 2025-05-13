@@ -72,6 +72,26 @@ function createLinePlot(data) {
         .x(d => x(d.time))
         .y(d => y(d.male_temp));
 
+    // Highlight time range around 1 PM
+    const highlightStart = parseTime("12:15"); // 1 PM
+    const highlightEnd = d3.timeMinute.offset(highlightStart, 85); // 20 minutes span (adjust as needed)
+
+    const xStart = x(highlightStart);
+    const xEnd = x(highlightEnd);
+
+    svg.append("rect")
+        .attr("x", xStart)
+        .attr("y", 0)
+        .attr("width", xEnd - xStart)
+        .attr("height", height)
+        .attr("fill", "#fff8b0") // pale yellow
+        .attr("opacity", 0.4)
+        .attr("stroke", "#e0c000") // slightly darker yellow stroke
+        .attr("stroke-width", 1)
+        .lower(); // put behind lines
+
+
+
     // Tooltip elements
     const tooltip = d3.select("body")
         .append("div")
@@ -125,11 +145,18 @@ function createLinePlot(data) {
         .on("mouseout", () => {
             tooltip.style("visibility", "hidden");
             focusLine.style("opacity", 0);
+        })
+        .on("click", () => {
+            tooltip.style("visibility", "hidden");
+            svg.selectAll("*").remove(); 
+            onClickEvent(svg);  
         });
+        
+        
 
     // Bisector to find closest time
     const bisect = d3.bisector(d => d.time).left;
-
+    
     function onMouseMove(event) {
         const [mouseX] = d3.pointer(event);
         const x0 = x.invert(mouseX);
@@ -144,20 +171,13 @@ function createLinePlot(data) {
             .attr("x2", x(d.time))
             .style("opacity", 1);
 
-        // Update tooltip
-        const scale = 5; // Adjust to make lines visible but not too long
-        const svgWidth = 40;
-        const svgHeight = 30;
 
-        const femaleY2 = 15 - d.female_act_chng * scale;
-        const maleY2 = 15 - d.male_act_chng * scale;
-        console.log(d.female_std)
         const minTemp = Math.min(d.female_temp, d.male_temp) - 1;
         const maxTemp = Math.max(d.female_temp, d.male_temp) + 1;
 
         const tempToX = d3.scaleLinear()
             .domain([minTemp, maxTemp])
-            .range([0, 130]); // match SVG width
+            .range([0, 130]); 
 
 
         tooltip
@@ -238,6 +258,7 @@ function createLinePlot(data) {
         .style("left", `${event.pageX + 10}px`)
         .style("top", `${event.pageY - 80}px`);
     }
+}
 
     function generateGaussianPath(mean, std, tempToX) {
         const steps = 300;
@@ -259,17 +280,171 @@ function createLinePlot(data) {
     }
 
 
-
-
-
-    const probScale = d3.scaleLinear()
-    .domain([0, 0.4]) 
-    .range([0, 30]);  
-
     function normalPDF(x, mean, std) {
         return (1 / (std * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((x - mean) / std, 2));
     }
 
+  function onClickEvent(svg) {
+    fetch('./Data/additional_data')
+        .then(response => response.json())
+        .then(data => {
+            const minutes = Object.keys(data.max); 
+            const transformedData = minutes.map(minute => ({
+                minute: minute,
+                max: data.max[minute],
+                min: data.min[minute],
+                mean: data.mean[minute],
+                m1: data.m1[minute],
+                m2: data.m2[minute],
+                m3: data.m3[minute],
+                m4: data.m4[minute],
+                m5: data.m5[minute],
+                m6: data.m6[minute],
+                m7: data.m7[minute],
+                m8: data.m8[minute],
+                m9: data.m9[minute],
+                m10: data.m10[minute],
+                m11: data.m11[minute],
+                m12: data.m12[minute],
+                m13: data.m13[minute],
+            }));
+
+            // const filteredData = transformedData.filter(d =>
+            //     !isNaN(d.female_temp) &&
+            //     !isNaN(d.male_temp) &&
+            //     !isNaN(d.female_act_chng) &&
+            //     !isNaN(d.male_act_chng) &&
+            //     !isNaN(d.male__std) &&
+            //     !isNaN(d.female_std)
+            // );
+            
+            createPlotB(transformedData)
+
+        });
+}
+
+function createPlotB(data) {
+    const margin = { top: 40, right: 40, bottom: 60, left: 60 };
+    const width = 1000 - margin.left - margin.right;
+    const height = 500 - margin.top - margin.bottom;
+
+    const svg = d3.select("#lineplot");
+
+    svg.selectAll("*").remove();
+
+    const g = svg.append("g")
+        .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+
+
+    const parseTime = d3.timeParse("%H:%M");
+    data.forEach(d => {
+        d.time = parseTime(d.minute);
+    });
+
+    const x = d3.scaleTime()
+    .domain(d3.extent(data, d => d.time))
+    .range([0, width]);
+
+    const y = d3.scaleLinear()
+        .domain([
+            d3.min(data, d => d.min - 0.1),
+            d3.max(data, d => d.max + 0.1)
+        ])
+        .range([height, 0]);
+
+    // Area between min and max
+    const areaMinMax = d3.area()
+            .x(d => x(d.time))
+            .y0(d => y(d.min) + 7)
+            .y1(d => y(d.max) - 7);
+
+    g.append("path")
+        .datum(data)
+        .attr("fill", "#cce5ff") // light blue
+        .attr("opacity", 0.4)
+        .attr("d", areaMinMax);
+
+
+    const lineMax = d3.line()
+        .x(d => x(d.time))
+        .y(d => y(d.max) - 6);
+
+    const lineMin = d3.line()
+        .x(d => x(d.time))
+        .y(d => y(d.min) + 6);
+
+    const lineMean = d3.line()
+        .x(d => x(d.time))
+        .y(d => y(d.mean));
+
+    // Max line – red/orange
+    g.append("path")
+        .datum(data)
+        .attr("fill", "none")
+        .attr("stroke", "#6fa3ff")
+        .attr("stroke-width", 2)
+        .attr("stroke-dasharray", "4,2")
+        .attr("opacity", 0.4)
+        .attr("d", lineMax);
+
+    // Min line – blue
+    g.append("path")
+        .datum(data)
+        .attr("fill", "none")
+        .attr("stroke", "#6fa3ff")
+        .attr("stroke-width", 2)
+        .attr("stroke-dasharray", "4,2")
+        .attr("opacity", 0.4)
+        .attr("d", lineMin);
+
+    // Mean line – black
+    g.append("path")
+        .datum(data)
+        .attr("fill", "none")
+        .attr("stroke", "#222")
+        .attr("stroke-width", 2)
+        .attr('opacity', 0.3)
+        .attr("stroke-dasharray", "4,2") // optional: dashed
+        .attr("d", lineMean);
+
+    // Add faint lines for m1 to m13
+    const memberLines = d3.line()
+        .x(d => x(d.time))
+        .y((d, i, arr) => {
+            // We'll override this per member below
+            return 0;
+        });
+
+    // List of member keys
+    const memberKeys = [
+        'm1', 'm2', 'm3', 'm4', 'm5', 'm6',
+        'm7', 'm8', 'm9', 'm10', 'm11', 'm12', 'm13'
+    ];
+
+    memberKeys.forEach(key => {
+        const line = d3.line()
+            .x(d => x(d.time))
+            .y(d => y(d[key]));
+
+        g.append("path")
+            .datum(data)
+            .attr("fill", "none")
+            .attr("stroke", "#6fa3ff") // light gray
+            .attr("stroke-width", 1)
+            .attr("opacity", 0.1)
+            .attr("d", line);
+    });
+
+
+    // X axis
+    g.append("g")
+        .attr("transform", `translate(0,${height})`)
+        .call(d3.axisBottom(x).tickFormat(d3.timeFormat("%H:%M")));
+
+    // Y axis
+    g.append("g")
+        .call(d3.axisLeft(y));
 }
 
 
