@@ -75,3 +75,18 @@
     gap: 1rem;
     margin-bottom: 1rem;
   }
+  .dropdown-container {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 1rem;
+    justify-content: center;
+    align-items: flex-end;
+    flex-wrap: wrap;
+  }
+  
+  .dropdown-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  

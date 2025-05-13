@@ -31,26 +31,52 @@ function createDropdowns(indivData, meanData) {
     const femaleList = Object.keys(indivData).filter(k => k.startsWith('f')).sort();
     const maleList = Object.keys(indivData).filter(k => k.startsWith('m')).sort();
 
-    const femSel = d3.select('body').insert("select", "#lineplot").attr("id", "femaleDropdown")
-        .append("option").attr("value", "").text("-- 🐭 Female Mean --");
+    const container = d3.select('body')
+        .insert("div", "#lineplot")
+        .attr("class", "dropdown-container");
+
+    // Female dropdown group
+    const femaleGroup = container.append("div").attr("class", "dropdown-group");
+    femaleGroup.append("label")
+        .attr("for", "femaleDropdown")
+        .text("👩‍🔬 Select Female Mouse:");
+    femaleGroup.append("select")
+        .attr("id", "femaleDropdown")
+        .append("option")
+        .attr("value", "")
+        .text("-- 🐭 Female Mean --");
 
     femaleList.forEach(id => {
         d3.select("#femaleDropdown")
-          .append("option").attr("value", id).text(id);
+          .append("option")
+          .attr("value", id)
+          .text(id);
     });
 
-    const maleSel = d3.select('body').insert("select", "#lineplot").attr("id", "maleDropdown")
-        .append("option").attr("value", "").text("-- 🐭 Male Mean --");
+    // Male dropdown group
+    const maleGroup = container.append("div").attr("class", "dropdown-group");
+    maleGroup.append("label")
+        .attr("for", "maleDropdown")
+        .text("👨‍🔬 Select Male Mouse:");
+    maleGroup.append("select")
+        .attr("id", "maleDropdown")
+        .append("option")
+        .attr("value", "")
+        .text("-- 🐭 Male Mean --");
 
     maleList.forEach(id => {
         d3.select("#maleDropdown")
-          .append("option").attr("value", id).text(id);
+          .append("option")
+          .attr("value", id)
+          .text(id);
     });
 
+    // Event listener
     d3.selectAll("select").on("change", function() {
         updateLines(indivData, meanData);
     });
 }
+
 
 function updateLines(indivData, meanData) {
     const fID = d3.select("#femaleDropdown").property("value");
