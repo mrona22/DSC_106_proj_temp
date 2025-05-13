@@ -44,13 +44,28 @@ function createDropdowns(indivData, meanData) {
         .attr("id", "femaleDropdown")
         .append("option")
         .attr("value", "")
-        .text("-- 🐭 Female Mean --");
+        .text(" 🐭 Female Mean ");
+    femaleGroup.append("button")
+        .attr('id', 'femaleRandomButton')
+        .text('🔀');
 
     femaleList.forEach(id => {
         d3.select("#femaleDropdown")
           .append("option")
           .attr("value", id)
-          .text(id);
+          .text('Mouse ' + id);
+    });
+
+    const reset = container.append('div').attr('class', 'reset');
+    reset.append('p').text('Reset').style('text-alignent', 'center');
+    reset.append('button').attr('id', 'resetButton')
+        .text('🔄')
+        .on('click', function() {
+            const femaleSelection = d3.select("#femaleDropdown");
+            const maleSelection = d3.select("#maleDropdown");
+            femaleSelection.property('value', '');
+            maleSelection.property('value', '');
+            updateLines(indivData, meanData);
     });
 
     // Male dropdown group
@@ -62,13 +77,32 @@ function createDropdowns(indivData, meanData) {
         .attr("id", "maleDropdown")
         .append("option")
         .attr("value", "")
-        .text("-- 🐭 Male Mean --");
+        .text(" 🐭 Male Mean ");
+    maleGroup.append("button")
+        .attr('id', 'maleRandomButton')
+        .text('🔀')
 
     maleList.forEach(id => {
         d3.select("#maleDropdown")
           .append("option")
           .attr("value", id)
-          .text(id);
+          .text('Mouse ' + id);
+    });
+
+    d3.select("#femaleRandomButton").on('click', function() {
+        const femaleSelection = d3.select("#femaleDropdown");
+        const randomFemaleIndex = Math.floor(Math.random() * femaleList.length);
+        const selectedFemale = femaleList[randomFemaleIndex];
+        femaleSelection.property("value", selectedFemale);
+        updateLines(indivData, meanData);
+    });
+
+    d3.select("#maleRandomButton").on('click', function() {
+        const maleSelection = d3.select("#maleDropdown");
+        const randomMaleIndex = Math.floor(Math.random() * maleList.length);
+        const selectedMale = maleList[randomMaleIndex];
+        maleSelection.property("value", selectedMale);
+        updateLines(indivData, meanData);
     });
 
     // Event listener
@@ -76,7 +110,6 @@ function createDropdowns(indivData, meanData) {
         updateLines(indivData, meanData);
     });
 }
-
 
 function updateLines(indivData, meanData) {
     const fID = d3.select("#femaleDropdown").property("value");
@@ -356,6 +389,22 @@ function createLinePlot(data) {
         .attr("height", height + margin.top + margin.bottom)
       .append("g")
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+    svg.append("text")
+        .attr("class", "x-label")
+        .attr("text-anchor", "end")
+        .attr("x", width)
+        .attr("y", height + 35)
+        .text("Hour of the Day");
+
+    svg.append("text")
+        .attr("class", "y-label")
+        .attr("text-anchor", "start")
+        .attr('x', 200)
+        .attr("y", 100)
+        .attr("dy", ".75em")
+        .attr("transform", "rotate(-90)")
+        .text("Average Temperature (°F)");
 
  
     const parseTime = d3.timeParse("%H:%M");
@@ -725,5 +774,3 @@ function createPlotB(data) {
     g.append("g")
         .call(d3.axisLeft(y));
 }
-
-

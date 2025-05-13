@@ -55,7 +55,7 @@
     box-shadow: 0 0 10px rgba(0,0,0,0.05);
   }
 
-  button.toggle-btn {
+  button {
     margin-bottom: 1rem;
     padding: 0.5rem 1rem;
     background-color: var(--card-color);
@@ -75,18 +75,37 @@
     gap: 1rem;
     margin-bottom: 1rem;
   }
+
   .dropdown-container {
     display: flex;
     gap: 2rem;
     margin-bottom: 1rem;
     justify-content: center;
-    align-items: flex-end;
+    align-items: center;
     flex-wrap: wrap;
   }
   
   .dropdown-group {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
   }
-  
+
+  #maleRandomButton, #femaleRandomButton {
+    font-size: 1.15rem;
+  }
+
+  .reset {
+    display: grid;
+    text-align: center;
+    font-weight: 600;
+    margin: 1rem;
+
+    #resetButton {
+      font-size: 1.15rem;
+    }
+  }
+
+  .x-label {
+    font-family: 'Inter', sans-serif;
+  }
