@@ -127,3 +127,7 @@
     margin-right: 6rem;
     margin-left: 6rem;
   }
+
+  #std-note{
+    fill: var(--text-color);
+  }

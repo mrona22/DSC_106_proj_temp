@@ -146,6 +146,7 @@ function updateLines(indivData, meanData) {
 
             const filteredBase = base.filter(d => !isNaN(d.female_temp) && !isNaN(d.male_temp));
 
+            const svg = d3.select("#lineplot");
             svg.selectAll("*").remove();
 
             svg.attr("width", width + margin.left + margin.right)
@@ -180,7 +181,6 @@ function updateLines(indivData, meanData) {
                 .attr("x", width + margin.left - 10)
                 .attr("y", margin.top)
                 .attr("text-anchor", "end")
-                .attr("fill", "#444")
                 .attr("font-size", "12px")
                 .attr("font-weight", "bold")
                 .style("visibility", "hidden")
@@ -208,9 +208,6 @@ function updateLines(indivData, meanData) {
                     focusLine.style("opacity", 0);
                     stdNote.style("visibility", "hidden");
                 });
-
-
-
 
             g.append("path")
                 .datum(filteredBase)
@@ -264,9 +261,6 @@ function updateLines(indivData, meanData) {
 
             g.append("g")
                 .call(d3.axisLeft(y));
-
-            const svg = d3.select("#lineplot");
-
 
             // Tooltip mouse move function
             function onMouseMove(event, data, x, y) {
@@ -443,8 +437,6 @@ function createLinePlot(data) {
         .style("visibility", "hidden")
         .text('👀 Notice the sharp fluctuation in male standard deviation within the highlighted section.')
 
-
-    
     const highlightStart = parseTime("12:15");
     const highlightEnd = d3.timeMinute.offset(highlightStart, 85); 
 
