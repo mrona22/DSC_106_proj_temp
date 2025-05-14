@@ -152,6 +152,7 @@ function updateLines(indivData, meanData) {
             svg.attr("width", width + margin.left + margin.right)
                .attr("height", height + margin.top + margin.bottom);
 
+
             const g = svg.append("g")
                 .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
@@ -175,28 +176,42 @@ function updateLines(indivData, meanData) {
             const xStart = x(highlightStart);
             const xEnd = x(highlightEnd);
 
-            g.append("rect")
+            const stdNote = g.append("text")
+                .attr("id", "std-note")
+                .attr("x", width + margin.left - 10)
+                .attr("y", margin.top)
+                .attr("text-anchor", "end")
+                .attr("fill", "#444")
+                .attr("font-size", "12px")
+                .attr("font-weight", "bold")
+                .style("visibility", "hidden")
+                .text('👀 Notice the sharp rise in male standard deviation within the highlighted section.')
+
+
+            const highlightRect = g.append("rect").raise()
                 .attr("x", xStart)
                 .attr("y", 0)
                 .attr("width", xEnd - xStart)
                 .attr("height", height)
-                .attr("fill", "#fff8b0") 
+                .attr("fill", "#fff8b0")
                 .attr("opacity", 0.4)
-                .attr("stroke", "#e0c000") 
+                .attr("stroke", "#e0c000")
                 .attr("stroke-width", 1)
-                .attr("style", "cursor: pointer")
-                .attr("style", "pointer-events: visible")
-                .on("mousemove", event => onMouseMove(event, filteredBase, x, y))
+                .style("cursor", "pointer")
+                .style("pointer-events", "all")
+                .on("mousemove", event => {
+                    console.log("abcd")
+                    onMouseMove(event, filteredBase, x, y);
+                    stdNote.style("visibility", "visible");
+                })
                 .on("mouseout", () => {
                     tooltip.style("visibility", "hidden");
                     focusLine.style("opacity", 0);
-                })
-                .on("click", () => {
-                    tooltip.style("visibility", "hidden");
-                    svg.selectAll("*").remove();
-                    onClickEvent(svg);
-                })
-                .lower();
+                    stdNote.style("visibility", "hidden");
+                });
+
+
+
 
             g.append("path")
                 .datum(filteredBase)
@@ -404,7 +419,7 @@ function createLinePlot(data) {
         .attr("y", 100)
         .attr("dy", ".75em")
         .attr("transform", "rotate(-90)")
-        .text("Average Temperature (°F)");
+        .text("Average Temperature (°C)");
 
  
     const parseTime = d3.timeParse("%H:%M");
@@ -431,6 +446,19 @@ function createLinePlot(data) {
         .x(d => x(d.time))
         .y(d => y(d.male_temp));
 
+    // Top-right note for yellow highlight explanation (initially hidden)
+    const stdNote = svg.append("text")
+        .attr("id", "std-note")
+        .attr("x", width + margin.left - 10)
+        .attr("y", margin.top)
+        .attr("text-anchor", "end")
+        .attr("fill", "#444")
+        .attr("font-size", "10px")
+        .attr("font-weight", "bold")
+        .style("visibility", "hidden")
+        .text('👀 Notice the sharp fluctuation in male standard deviation within the highlighted section.')
+
+
     
     const highlightStart = parseTime("12:15");
     const highlightEnd = d3.timeMinute.offset(highlightStart, 85); 
@@ -443,11 +471,21 @@ function createLinePlot(data) {
         .attr("y", 0)
         .attr("width", xEnd - xStart)
         .attr("height", height)
-        .attr("fill", "#fff8b0") 
+        .attr("fill", "#fff8b0")
         .attr("opacity", 0.4)
-        .attr("stroke", "#e0c000") 
+        .attr("stroke", "#e0c000")
         .attr("stroke-width", 1)
-        .lower(); 
+        .style("cursor", "pointer")
+        .style("pointer-events", "visible")
+        .on("mousemove", event => {
+            onMouseMove(event, data, x, y); // correct data
+            d3.select("#std-note").style("visibility", "visible");
+        })
+        .on("mouseout", () => {
+            tooltip.style("visibility", "hidden");
+            focusLine.style("opacity", 0);
+            d3.select("#std-note").style("visibility", "hidden");
+        });
 
     const tooltip = d3.select("body")
         .append("div")
@@ -494,10 +532,14 @@ function createLinePlot(data) {
         .attr("height", height)
         .attr("fill", "none")
         .attr("pointer-events", "all")
-        .on("mousemove", event => onMouseMove(event, data, x, y))
+        .on("mousemove", event => {
+            onMouseMove(event, data, x, y); // keep tooltip moving
+            //d3.select("#std-note").style("visibility", "visible");
+        })
         .on("mouseout", () => {
             tooltip.style("visibility", "hidden");
             focusLine.style("opacity", 0);
+            d3.select("#std-note").style("visibility", "hidden");
         });
 
     svg.append("rect")
@@ -510,17 +552,17 @@ function createLinePlot(data) {
         .attr("stroke", "#e0c000")
         .attr("stroke-width", 1)
         .style("cursor", "pointer")
-        .style("pointer-events", "visible") // Allow interaction only with painted area
-        .on("mousemove", event => onMouseMove(event, data, x, y)) // same function as overlay
+        .style("pointer-events", "visible")
+        .on("mousemove", event => {
+            onMouseMove(event, data, x, y); // correct data
+            d3.select("#std-note").style("visibility", "visible");
+        })
         .on("mouseout", () => {
             tooltip.style("visibility", "hidden");
             focusLine.style("opacity", 0);
-        })
-        .on("click", () => {
-            tooltip.style("visibility", "hidden");
-            svg.selectAll("*").remove();
-            onClickEvent(svg);
+            d3.select("#std-note").style("visibility", "hidden");
         });
+       
 
     // Tooltip mouse move function
     function onMouseMove(event, data, x, y) {
@@ -624,153 +666,4 @@ function createLinePlot(data) {
         .style("left", `${event.pageX + 10}px`)
         .style("top", `${event.pageY - 80}px`);
     }
-}
-
-function onClickEvent(svg) {
-    fetch('./Data/additional_data')
-        .then(response => response.json())
-        .then(data => {
-            const minutes = Object.keys(data.max); 
-            const transformedData = minutes.map(minute => ({
-                minute: minute,
-                max: data.max[minute],
-                min: data.min[minute],
-                mean: data.mean[minute],
-                m1: data.m1[minute],
-                m2: data.m2[minute],
-                m3: data.m3[minute],
-                m4: data.m4[minute],
-                m5: data.m5[minute],
-                m6: data.m6[minute],
-                m7: data.m7[minute],
-                m8: data.m8[minute],
-                m9: data.m9[minute],
-                m10: data.m10[minute],
-                m11: data.m11[minute],
-                m12: data.m12[minute],
-                m13: data.m13[minute],
-            }));
-            
-            createPlotB(transformedData)
-        });
-}
-
-function createPlotB(data) {
-    const margin = { top: 40, right: 40, bottom: 60, left: 60 };
-    const width = 1000 - margin.left - margin.right;
-    const height = 500 - margin.top - margin.bottom;
-
-    const svg = d3.select("#lineplot");
-
-    svg.selectAll("*").remove();
-
-    // Reset SVG dimensions
-    svg.attr("width", width + margin.left + margin.right)
-       .attr("height", height + margin.top + margin.bottom);
-
-    const g = svg.append("g")
-        .attr("transform", `translate(${margin.left}, ${margin.top})`);
-
-    const parseTime = d3.timeParse("%H:%M");
-    data.forEach(d => {
-        d.time = parseTime(d.minute);
-    });
-
-    const x = d3.scaleTime()
-        .domain(d3.extent(data, d => d.time))
-        .range([0, width]);
-
-    const y = d3.scaleLinear()
-        .domain([
-            d3.min(data, d => d.min - 0.1),
-            d3.max(data, d => d.max + 0.1)
-        ])
-        .range([height, 0]);
-
-    const areaMinMax = d3.area()
-        .x(d => x(d.time))
-        .y0(d => y(d.min) + 7)
-        .y1(d => y(d.max) - 7);
-
-    g.append("path")
-        .datum(data)
-        .attr("fill", "#cce5ff") 
-        .attr("opacity", 0.4)
-        .attr("d", areaMinMax);
-
-    const lineMax = d3.line()
-        .x(d => x(d.time))
-        .y(d => y(d.max) - 6);
-
-    const lineMin = d3.line()
-        .x(d => x(d.time))
-        .y(d => y(d.min) + 6);
-
-    const lineMean = d3.line()
-        .x(d => x(d.time))
-        .y(d => y(d.mean));
-
-    g.append("path")
-        .datum(data)
-        .attr("fill", "none")
-        .attr("stroke", "#6fa3ff")
-        .attr("stroke-width", 2)
-        .attr("stroke-dasharray", "4,2")
-        .attr("opacity", 0.4)
-        .attr("d", lineMax);
-
-    g.append("path")
-        .datum(data)
-        .attr("fill", "none")
-        .attr("stroke", "#6fa3ff")
-        .attr("stroke-width", 2)
-        .attr("stroke-dasharray", "4,2")
-        .attr("opacity", 0.4)
-        .attr("d", lineMin);
-
-    g.append("path")
-        .datum(data)
-        .attr("fill", "none")
-        .attr("stroke", "#222")
-        .attr("stroke-width", 2)
-        .attr('opacity', 0.3)
-        .attr("stroke-dasharray", "4,2") 
-        .attr("d", lineMean);
-
-
-    const memberLines = d3.line()
-        .x(d => x(d.time))
-        .y((d, i, arr) => {
-
-            return 0;
-        });
-
-
-    const memberKeys = [
-        'm1', 'm2', 'm3', 'm4', 'm5', 'm6',
-        'm7', 'm8', 'm9', 'm10', 'm11', 'm12', 'm13'
-    ];
-
-    memberKeys.forEach(key => {
-        const line = d3.line()
-            .x(d => x(d.time))
-            .y(d => y(d[key]));
-
-        g.append("path")
-            .datum(data)
-            .attr("fill", "none")
-            .attr("stroke", "#6fa3ff") 
-            .attr("stroke-width", 1)
-            .attr("opacity", 0.1)
-            .attr("d", line);
-    });
-
-    // X axis
-    g.append("g")
-        .attr("transform", `translate(0,${height})`)
-        .call(d3.axisBottom(x).tickFormat(d3.timeFormat("%H:%M")));
-
-    // Y axis
-    g.append("g")
-        .call(d3.axisLeft(y));
 }
