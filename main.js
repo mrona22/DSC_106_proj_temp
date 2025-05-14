@@ -146,7 +146,6 @@ function updateLines(indivData, meanData) {
 
             const filteredBase = base.filter(d => !isNaN(d.female_temp) && !isNaN(d.male_temp));
 
-            const svg = d3.select("#lineplot");
             svg.selectAll("*").remove();
 
             svg.attr("width", width + margin.left + margin.right)
@@ -265,6 +264,9 @@ function updateLines(indivData, meanData) {
 
             g.append("g")
                 .call(d3.axisLeft(y));
+
+            const svg = d3.select("#lineplot");
+
 
             // Tooltip mouse move function
             function onMouseMove(event, data, x, y) {
@@ -405,23 +407,6 @@ function createLinePlot(data) {
       .append("g")
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-    svg.append("text")
-        .attr("class", "x-label")
-        .attr("text-anchor", "end")
-        .attr("x", width)
-        .attr("y", height + 35)
-        .text("Hour of the Day");
-
-    svg.append("text")
-        .attr("class", "y-label")
-        .attr("text-anchor", "start")
-        .attr('x', 200)
-        .attr("y", 100)
-        .attr("dy", ".75em")
-        .attr("transform", "rotate(-90)")
-        .text("Average Temperature (°C)");
-
- 
     const parseTime = d3.timeParse("%H:%M");
     data.forEach(d => {
         d.time = parseTime(d.minute);
@@ -526,6 +511,21 @@ function createLinePlot(data) {
 
     svg.append("g")
         .call(d3.axisLeft(y));
+
+    svg.append('text')
+        .attr('class', 'x-label')
+        .attr('text-anchor', 'middle')
+        .attr('x', width / 2)
+        .attr('y', height + margin.bottom - 20)
+        .text('Time (hours)')
+
+    svg.append('text')
+        .attr('class', 'y-label')
+        .attr('text-anchor', 'middle')
+        .attr('transform', 'rotate(-90)')
+        .attr('x', - height / 2)
+        .attr('y', -margin.left + 20)
+        .text('Temperature (°C)')
 
     svg.append("rect")
         .attr("width", width)

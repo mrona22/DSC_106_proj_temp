@@ -13,6 +13,7 @@
         <button class="toggle-btn" onclick="playMusic()">🎵 Play/Pause Music</button>
     </div>
     <h1>🐭 Temporal Changes in Activity and Temperature: <br> Male vs. Female Mice 🐭</h1>
+    <h4>Matti Key, Milan Rona, Connie Liu, and Jas Sandhu</h4>
       <svg id="lineplot"></svg>
       <div class="tool-tip"></div>
     
@@ -32,5 +33,30 @@
         }
       }
       </script>
+
+      <div class="writeup">
+        <h3>Write Up</h3>
+        <p>
+          During our initial exploration of the data, Matti created multiple exploratory plots to understand the data. Many of these graphs focused on comparing female and male mice
+          over time. A clear trend of activity and temperature between genders was noticed, so we decided to focus on documenting this comparison. Some of the first graphs also compared
+          individual mice, rather than the grouped averages. We found the results of this to also be telling, so we decided to implement the ability for the user to select a mouse
+          to be plotted. Additionally, since the initial graph had a random mouse selected, the option to randomize the mouse chosen was added.
+        </p>
+        <p>
+          For our first interactive graph, we plotted the mean body temperatures of male and female mice over the entire two-week period. However, we quickly realized that the graph
+          became difficult to read with the constant rises and dips of the data. Milan then created a second plot that averaged the temperatures of the mice according to the hour.
+          This lead to a cleaner and effective plot that we began to incorporate more interactive elements to. A tooltip that visualizes the change in activity and a normal distribution
+          of the temperature makes the data even easier to read. Trends of the mice's activity and temperature are clearer to differentiate by the minute and we highlighted a portion
+          that we found the difference to be the clearest. As the user scrolls through the highlighted section, the changes in the male activity arrow and temperature distribution
+          fluctuate wildly, and we hoped to showcase this by emphasizing the region.
+        </p>
+        <p>
+          Matti then incorporated features from the old graph into the new one, such as the ability for the user to select a male and female mouse if so desired. Jas built upon this feature,
+          including buttons that randomize the selected mouse for males and females. A reset button was also included for when the user wishes to return to the initial plot.
+          Connie worked through the stylization of the webpage, formatting the text and colors to make the visualization more appealing and palatable. She established a theme on the
+          webpage that the group used throughout the visualization, such as the mouse selection dropdown and buttons. Options to toggle between light and dark mode are available for
+          the user as well. Along with the ability to play the Ratatouille theme.
+        </p>
+      </div>
 </body>
 </html>

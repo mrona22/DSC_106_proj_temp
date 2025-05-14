@@ -3,6 +3,7 @@
     --text-color: #333;
     --card-color: #fff;
     --border-color: #ddd;
+    --subtitle-color: #555555;
   }
 
   body.dark {
@@ -10,6 +11,7 @@
     --text-color: #f0f0f0;
     --card-color: #2a2a2a;
     --border-color: #444;
+    --subtitle-color: #999999;
   }
 
   body {
@@ -106,6 +108,22 @@
     }
   }
 
-  .x-label {
-    font-family: 'Inter', sans-serif;
+  .x-label, .y-label {
+    fill: var(--text-color);
+  }
+
+  h3 {
+    text-align: center;
+  }
+
+  h4 {
+    font-weight: 505;
+    margin-top: 0rem;
+    margin-bottom: 3rem;
+    color: var(--subtitle-color);
+  }
+
+  .writeup {
+    margin-right: 6rem;
+    margin-left: 6rem;
   }
