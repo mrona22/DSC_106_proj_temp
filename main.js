@@ -116,7 +116,7 @@ function updateLines(indivData, meanData) {
     const mID = d3.select("#maleDropdown").property("value");
 
     const margin = { top: 40, right: 40, bottom: 60, left: 60 };
-    const width = 1000 - margin.left - margin.right;
+    const width = 1000 - margin.left - margin.right; 
     const height = 500 - margin.top - margin.bottom;
 
     fetch('./Data/data_real')
@@ -149,8 +149,8 @@ function updateLines(indivData, meanData) {
             const svg = d3.select("#lineplot");
             svg.selectAll("*").remove();
 
-            svg.attr("width", width + margin.left + margin.right)
-               .attr("height", height + margin.top + margin.bottom);
+            svg.attr("width", width - margin.left - margin.right)
+               .attr("height", height - margin.top - margin.bottom);
 
 
             const g = svg.append("g")
@@ -166,6 +166,21 @@ function updateLines(indivData, meanData) {
                     d3.max(filteredBase, d => Math.max(d.female_temp, d.male_temp)) + 0.2
                 ])
                 .range([height, 0]);
+
+            svg.append('text')
+                .attr('class', 'x-label')
+                .attr('text-anchor', 'middle')
+                .attr('x', width / 2 + 60)
+                .attr('y', 480)
+                .text('Time (hours)')
+
+            svg.append('text')
+                .attr('class', 'y-label')
+                .attr('text-anchor', 'middle')
+                .attr('transform', 'rotate(-90)')
+                .attr('x', -240)
+                .attr('y', 20)
+                .text('Temperature (°C)')
 
             const lineF = d3.line().x(d => x(d.time)).y(d => y(d.female_temp));
             const lineM = d3.line().x(d => x(d.time)).y(d => y(d.male_temp));
@@ -398,7 +413,7 @@ function createLinePlot(data) {
     const svg = d3.select("#lineplot")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
-      .append("g")
+        .append("g")
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
     const parseTime = d3.timeParse("%H:%M");
